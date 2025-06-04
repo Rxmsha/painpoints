@@ -107,8 +107,8 @@ function isBusinessPainPoint(text: string, sentimentScore: number): boolean {
   return hasPainIndicator;
 }
 
-// Generate mock Reddit data with 2024+ dates
-function generateMockRedditData(subreddits: string[], keywords: string[]) {
+// Generate mock Reddit data with configurable cutoff year
+function generateMockRedditData(subreddits: string[], keywords: string[], sinceYear: number = 2024) {
   const mockPosts = [
     {
       title: "Frustrated with customer support software that doesn't work",
@@ -160,8 +160,8 @@ function generateMockRedditData(subreddits: string[], keywords: string[]) {
     }
   ];
 
-  // Filter posts from 2024 onwards and process them
-  const cutoffDate = new Date('2024-01-01');
+  // Filter posts from specified year onwards and process them
+  const cutoffDate = new Date(`${sinceYear}-01-01`);
   
   return mockPosts
     .filter(post => new Date(post.date) >= cutoffDate)
@@ -194,14 +194,14 @@ function generateMockRedditData(subreddits: string[], keywords: string[]) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { subreddits, keywords } = await request.json();
+    const { subreddits, keywords, since_year } = await request.json();
     
     if (!subreddits || !Array.isArray(subreddits) || subreddits.length === 0) {
       return NextResponse.json({ error: 'Subreddits are required' }, { status: 400 });
     }
 
     // Generate mock data (in production, this would use PRAW)
-    const painPoints = generateMockRedditData(subreddits, keywords || []);
+    const painPoints = generateMockRedditData(subreddits, keywords || [], since_year || 2024);
     
     // Save to JSON file (simulate database)
     const dataDir = path.join(process.cwd(), 'data');
