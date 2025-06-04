@@ -1,0 +1,39 @@
+I. Backend API Modifications (Python/Flask or Next.js API Routes):
+
+Enhanced Pain Point Discovery & Date Filtering:
+
+Objective: Move away from manually inputting "frustration keywords" (like "frustrated with"). The system should more intelligently identify potential pain points from scraped content.
+Scraping:
+When scraping (e.g., from Reddit), configure PRAW (or other scraping tools) to retrieve posts and comments primarily from January 1, 2024, onwards. You might need to iterate through recent posts and stop when the post date is before 2024, or use specific search query parameters if the platform API supports precise date ranges for broad queries.
+NLP Enhancement:
+The core NLP logic (in nlp_processor.py or equivalent) needs to be more robust.
+Primary Sentiment Analysis: Use a local LLM (e.g., distilbert-base-uncased-finetuned-sst-2-english via Hugging Face transformers) or a strong sentiment library (like VADER) to identify text with negative sentiment. This becomes the first-pass filter.
+(Advanced - Core of "Automatic" Detection): After negative sentiment, apply a secondary classification or heuristic to determine if the text describes a "business-related pain point" or "unmet need."
+Option A (Simpler): Refine keyword spotting for business context (product, service, company, app, feature, bug, support, etc.) within the negatively-flagged text.
+Option B (More Advanced): Use a zero-shot classification model (e.g., a smaller DistilBERT-based one or valhalla/distilbart-mnli-12-3 if resources allow) with candidate labels like "business complaint," "product issue," "service frustration," "feature request," "general negative comment." Prioritize those classified as business-related frustrations.
+The goal is to surface relevant items without the user needing to guess all the frustration phrasings.
+Pagination for /pain_points Endpoint:
+
+Modify the existing API endpoint that serves pain points (e.g., GET /api/pain-points).
+It should accept page (e.g., default 1) and limit (e.g., default 10) query parameters.
+The backend logic should query the database (SQLite or other) using LIMIT and OFFSET (calculated as (page - 1) * limit) to return only the requested slice of data.
+The API response should also include totalItems (or totalPages) to help the frontend build pagination controls.
+Like/Unlike Functionality:
+
+Database:
+Add a table (e.g., user_interactions) with columns like pain_point_id (foreign key), user_id (if you implement users, otherwise can be implicit or session-based for local use), and interaction_type (e.g., 'liked', 'unliked', or a boolean is_liked). For a simpler local setup, you could even add is_liked (boolean, nullable) and is_unliked (boolean, nullable) directly to your pain_points table.
+API Endpoints:
+POST /api/pain-points/{id}/like: Marks the pain point with the given id as liked.
+POST /api/pain-points/{id}/unlike: Marks the pain point with the given id as unliked.
+POST /api/pain-points/{id}/clear-interaction: Removes like/unlike status.
+GET /api/pain-points/liked: Returns all pain points marked as liked. (Supports pagination).
+GET /api/pain-points/unliked: Returns all pain points marked as unliked. (Supports pagination).
+Category Filtering:
+
+Database: Add a category text field to your pain_points table.
+Categorization Strategy (Backend):
+Initial Approach (Heuristic): During NLP processing, attempt to assign a category based on:
+The source (e.g., if from r/technology, categorize as "Technology").
+Keywords found within the pain point text. Define sets of keywords for each category. Example: "API," "software," "bug" -> "Technology"; "shipping," "checkout," "product" -> "E-commerce."
+(Advanced): A dedicated text classification model for your categories.
+API Endpoint Modification: The GET /api/pain-points endpoint should accept an optional category query parameter to filter results.
