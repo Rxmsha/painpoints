@@ -43,7 +43,19 @@ export async function GET(request: NextRequest) {
     const sortBy = url.searchParams.get('sortBy') || 'date'; // 'date', 'sentiment', 'score'
     const sortOrder = url.searchParams.get('sortOrder') || 'desc'; // 'asc' or 'desc'
 
-    let painPoints = await loadPainPoints();
+    const fetchSinceYearParam = url.searchParams.get("fetchSinceYear");
+
+    let painPoints = await loadPainPoints(); //
+
+    // Date Filtering (NEW)
+    if (fetchSinceYearParam) {
+      const year = parseInt(fetchSinceYearParam, 10);
+      if (!isNaN(year)) {
+        painPoints = painPoints.filter(
+          (point) => new Date(point.date).getFullYear() >= year
+        );
+      }
+    }
     
     // Filter by category
     if (category && category !== 'all') {

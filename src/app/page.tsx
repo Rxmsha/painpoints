@@ -75,6 +75,7 @@ export default function Home() {
         sortBy,
         sortOrder,
       });
+      params.append("fetchSinceYear", fetchSinceYear);
       
       if (selectedCategory !== 'all') {
         params.append('category', selectedCategory);
