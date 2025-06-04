@@ -1,0 +1,55 @@
+II. Frontend Modifications (Next.js & React):
+
+Input Area Redesign:
+
+Remove the "Keywords (comma-separated)" input field for frustration phrases.
+Keep the "Subreddits (comma-separated)" input.
+Optionally, add a date range selector (e.g., "Fetch since: [Year Dropdown, default 2024]") if you want more granular control than just "2024 onwards."
+The "Start Scraping" button remains.
+Displaying Pain Points:
+
+When "Load Pain Points" is clicked (or data is loaded automatically):
+Fetch data from /api/pain-points using the current page number.
+Display each pain point in a card format similar to your image.
+Include: Source (e.g., subreddit), the text, sentiment score (if available).
+Add "View Original Post" link.
+Category Display: Show the auto-assigned category for each pain point.
+Like/Unlike Buttons: Add "Like" (👍) and "Unlike" (👎) buttons to each card. Their state (active/inactive) should reflect the current status of the item. Clicking them should call the respective backend API endpoints.
+Pagination Controls:
+
+Below the list of pain points, add pagination controls (e.g., "Previous," "Page X of Y," "Next").
+These controls should update the current page state and re-fetch data from the /api/pain-points endpoint with the new page number.
+Category Filter UI:
+
+Add a dropdown menu (or a list of clickable tags/buttons) for categories.
+Suggested Categories (provide these in your UI):
+Technology (Software, Hardware, Apps, AI, Web Services)
+E-commerce & Retail
+Services (General Customer Service, Professional Services)
+Home & Garden
+Health & Wellness
+Finance & Fintech
+Education & EdTech
+Travel & Hospitality
+Food & Beverage
+Gaming & Entertainment
+Automotive
+Productivity Tools
+Creator Economy
+Sustainability
+(Add more as you see fit)
+Selecting a category should re-fetch pain points from /api/pain-points?category={selected_category}. Add an "All Categories" option.
+Liked/Unliked Views:
+
+Add navigation (e.g., tabs or sidebar links) for "All Pain Points," "Liked Items," "Unliked Items."
+Clicking "Liked Items" should fetch from /api/pain-points/liked and display them.
+Clicking "Unliked Items" should fetch from /api/pain-points/unliked and display them.
+These views should also support pagination.
+III. State Management (React):
+
+Use React's useState and useEffect hooks, or a state management library (like Zustand, Jotai, or Redux Toolkit if the complexity grows) to manage:
+Current list of pain points.
+Pagination state (current page, total pages/items).
+Selected category filter.
+Loading and error states.
+State of liked/unliked items (to update UI instantly before re-fetch, or after).
